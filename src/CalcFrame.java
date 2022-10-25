@@ -28,6 +28,7 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
     static final int numberOfLines = 6;
     static final int numberofColums = 4;
     static MyButton[] myButtons = new MyButton[30];
+    static Calculator calculator = new Calculator ( );
 
     CalcFrame ( ) { }
 
@@ -38,13 +39,6 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
         button.setVerticalAlignment ( JButton.CENTER );
         return new MyButton ( button, MyButton.numberOfButtons );
 
-    }
-
-    private MyButton getButton ( Icon icon, CalcFrame calcFrame ) {
-        JButton button = new JButton ( icon );
-        button.addActionListener ( calcFrame );
-        button.setVerticalAlignment ( JButton.CENTER );
-        return new MyButton ( button, MyButton.numberOfButtons );
     }
 
     @Deprecated
@@ -58,9 +52,8 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
 
         textField = new JTextField ( );
 
-        Icon icon = new ImageIcon ( "x squared.jpg" );
         String[] buttonSigns = { "%", "CE", "C", "←", "¹/ₓ", "x²", "√", "÷", "7", "8", "9", "×", "6", "5", "4", "-",
-                "1", "2", "3", "+", "±", "0", ",", "=" };
+                "1", "2", "3", "+", "±", "0", ".", "=" };
 
         for ( int i = 0; i < buttonSigns.length; i++ ) {
             myButtons[i] = calcFrame.getButton ( buttonSigns[i], calcFrame );
@@ -89,7 +82,7 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
 
     @Override
     public void actionPerformed ( ActionEvent e ) {
-        textField.setText ( textField.getText ( ) + e.getActionCommand ( ) );
+        textField.setText ( calculator.add ( e.getActionCommand ( ) ) );
     }
 
     @Override
