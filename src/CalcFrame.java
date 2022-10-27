@@ -25,9 +25,9 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
     public static JFrame frame;
     public final static Rectangle frameSize = new Rectangle ( 0, 0, 350, 650 );
     public static JTextField textField;
-    static final int numberOfLines = 6;
-    static final int numberofColums = 4;
-    static MyButton[] myButtons = new MyButton[30];
+    static final int numberOfLines = 7;
+    static final int numberofColums = 5;
+    static MyButton[] myButtons = new MyButton[numberofColums * numberOfLines];
     static Calculator calculator = new Calculator ( );
 
     CalcFrame ( ) { }
@@ -47,14 +47,19 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
         CalcFrame calcFrame = new CalcFrame ( );
 
         frame = new JFrame ( "Calculator" );
-        frame.setSize ( frameSize.width, frameSize.height );
         frame.setLocation ( 600, 150 );
-        frame.setMinimumSize ( frame.getSize ( ) );
+        frame.setMinimumSize ( new Dimension ( 500, 650 ) );
+        frame.setSize ( frameSize.width, frameSize.height );
 
         textField = new JTextField ( );
 
-        String[] buttonSigns = { "%", "CE", "C", "←", "¹/ₓ", "x²", "√", "÷", "7", "8", "9", "×", "6", "5", "4", "-",
-                "1", "2", "3", "+", "±", "0", ".", "=" };
+        String[] buttonSigns = { "2ⁿᵈ", "π", "e", "mod", "←",
+                                 "x²", "¹/ₓ", "|x|", "C", "CE",
+                                 "√", "(", ")", "n!", "÷",
+                                 "xʸ", "7", "8", "9", "×",
+                                 "10ˣ", "4", "5", "6", "-",
+                                 "log", "1", "2", "3", "+",
+                                 "ln", "±", "0", ".", "="};
 
         for ( int i = 0; i < buttonSigns.length; i++ )
             myButtons[i] = calcFrame.getButton ( buttonSigns[i], calcFrame );
@@ -68,6 +73,8 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
         textField.setFont ( textFieldFont );
         textField.setEditable ( false );
         textField.setBackground ( Color.LIGHT_GRAY );
+        textField.setAlignmentX ( JTextField.LEFT_ALIGNMENT );
+        textField.setAlignmentY ( JTextField.BOTTOM_ALIGNMENT );
 
         for ( int i = 0; i < MyButton.numberOfButtons; i++ )
             frame.add ( myButtons[i].button );
@@ -127,11 +134,11 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
         int finalX = frameWidth - 2 * spaceBetweenX;
         int finalY = frameHeight / 5;
 
-        int fontSize = ( int ) Point.distance ( 0, 0, frameHeight, frameWidth * 0.75 ) / 21;
+        int fontSize = ( int ) Point.distance ( 0, 0, frameHeight * 0.50, frameWidth * 0.75 ) / 20;
         Font buttonFont = new Font ( "Calibri", Font.PLAIN, fontSize );
 
         Rectangle textFieldSize = new Rectangle ( spaceBetweenX, spaceBetweenY, finalX, finalY );
-        Rectangle[] bounds = new Rectangle[30];
+        Rectangle[] bounds = new Rectangle[numberOfLines * numberofColums];
 
         int buttonHeight = ( int ) ( frameHeight - textFieldSize.height - spaceBetweenY * ( numberOfLines + 1.75 ) ) / numberOfLines;
         int buttonWidth = ( frameWidth - spaceBetweenX * ( numberofColums + 3 ) ) / numberofColums;
