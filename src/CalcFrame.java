@@ -1,5 +1,3 @@
-import com.sun.source.doctree.AttributeTree;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -81,8 +79,8 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
 
         textField = new JTextField ( );
 
-        String[] buttonSigns = { "2ⁿᵈ", "π", "e", "mod", "←",
-                                 "x²", "¹/ₓ", "|x|", "C", "CE",
+        String[] buttonSigns = { "2ⁿᵈ", "π", "e", "CE", "←",
+                                 "x²", "¹/ₓ", "|x|", "exp", "mod",
                                  "√", "(", ")", "n!", "÷",
                                  "xʸ", "7", "8", "9", "×",
                                  "10ˣ", "4", "5", "6", "-",
@@ -189,6 +187,7 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
     @Override
     public void keyPressed(KeyEvent e) {
         System.out.println ( "Bench pressed xD :)" );
+        System.out.println ( e.getKeyChar ( ) );
         String text;
         if ( e.getKeyChar ( ) == '/' )
             text = calculator.add ( Calculator.DIVSIGN );
@@ -204,6 +203,8 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
             text = calculator.add ( Calculator.FACTORIALSIGN );
         else if ( e.getKeyChar ( ) == '^' )
             text = calculator.add ( Calculator.POWERSIGN );
+        else if ( e.getKeyCode ( ) == KeyEvent.VK_P )
+            text = calculator.add ( Calculator.PISIGN );
         else
             text = calculator.add ( Character.toString ( e.getKeyChar ( ) ) );
         textField.setFont ( getTextFieldFont ( textField, text ) );

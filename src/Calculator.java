@@ -4,15 +4,16 @@ public class Calculator {
     final static String SPECIALSIGN = "πe.";
     final static String PISIGN = "π";
     final static String ESIGN = "e";
-    final static String SIMPLESIGN = "+-×÷xʸmod";
+    final static String SIMPLESIGN = "+-×÷xʸmodexp";
+    final static String EXPSIGN = "exp";
     final static String MODULOSIGN = "mod";
     final static String PLUSSIGN = "+";
     final static String MINUSSIGN = "-";
     final static String MULSIGN = "×";
     final static String DIVSIGN = "÷";
     final static String POWERSIGN = "xʸ";
-    final static String SINGULARSIGN = "¹/ₓx²√±%CE|x|logln10ˣ!";
-    final static String FACTORIALSIGN = "!";
+    final static String SINGULARSIGN = "¹/ₓx²√±%CE|x|logln10ˣn!";
+    final static String FACTORIALSIGN = "n!";
     final static String POW10SIGN = "10ˣ";
     final static String LOGSIGN = "log";
     final static String LNSIGN = "ln";
@@ -70,21 +71,25 @@ public class Calculator {
             case POW10SIGN:
                 return Double.toString ( Math.pow ( 10, Double.parseDouble ( number ) ) );
             case FACTORIALSIGN:
-                return Double.toString ( factorial ( Double.parseDouble ( number ) ) );
+                return Integer.toString ( factorial ( Double.parseDouble ( number ) ) );
         }
         return number;
     }
 
-    private String calculate ( String num1, String op, String num2 ) {
-        double number1 = Double.parseDouble ( num1 );
-        double number2 = Double.parseDouble ( num2 );
-        return switch (op) {
+    private String calculate ( int position ) {
+        double number1 = Double.parseDouble ( number[position] );
+        double number2 = Double.parseDouble ( number[position + 1] );
+        String op = operation[position];
+        number[position + 1] = operation[position] = "";
+        return switch ( op ) {
             case PLUSSIGN -> Double.toString ( number1 + number2 );
             case MINUSSIGN -> Double.toString ( number1 - number2 );
             case DIVSIGN -> Double.toString ( number1 / number2 );
             case MULSIGN -> Double.toString ( number1 * number2 );
             case "^" -> Double.toString ( Math.pow ( number1, number2 ) );
             case MODULOSIGN -> Double.toString ( number1 % number2 );
+            case ",e+" -> Double.toString ( number1 * Math.pow ( 10, number2 ) );
+            case ",e-" -> Double.toString ( number1 / Math.pow ( 10, number2 ) );
             default -> "";
         };
     }
@@ -94,21 +99,14 @@ public class Calculator {
         if ( numString.isEmpty ( ) || ( !numString.contains ( ".0" ) && numString.contains ( "." ) ) ) return;
         double num = Double.parseDouble ( number[numberPoz] );
         if ( num < 0 ) {
-            if ( operation[operationPoz].equals ( MINUSSIGN ) )
-                operation[operationPoz] = PLUSSIGN;
-            else if ( operation[operationPoz].equals ( PLUSSIGN ) )
-                operation[operationPoz] = MINUSSIGN;
-            else
-                return;
-            number[numberPoz] = number[numberPoz].substring ( 1 );
+            if ( changeOperationSign(operationPoz) )
+                number[numberPoz] = number[numberPoz].substring ( 1 );
         }
     }
 
     private String integerVerification ( String number ) {
-        if ( number.isEmpty ( ) )
+        if ( number.isEmpty ( ) || number.endsWith ( "." ) )
             return  number;
-        if ( number.endsWith ( "." ) )
-            return number;
         double num = Double.parseDouble ( number );
         if ( Math.abs ( ( int ) num - num ) < error )
             return Integer.toString ( ( int ) num );
@@ -131,7 +129,7 @@ public class Calculator {
                 else if ( number.contains ( DECIMALSIGN ) )
                     return number;
                 return number + DECIMALSIGN;
-        };
+        }
         return number;
     }
 
@@ -142,6 +140,8 @@ public class Calculator {
             return "";
         if ( Double.isNaN ( num ) )
             return "";
+        if ( num == 0 )
+            return "";
         return number;
     }
 
@@ -151,8 +151,7 @@ public class Calculator {
         else if ( number[2].isEmpty ( ) && !number[1].isEmpty ( ) ) {
             if ( sign.equals ( PLUSSIGN ) || sign.equals ( MINUSSIGN )
                     || operation[0].equals ( DIVSIGN ) || operation[0].equals ( MULSIGN ) ) {
-                number[0] = calculate ( number[0], operation[0], number[1] );
-                number[1] = "";
+                number[0] = calculate ( 0 );
                 operation[0] = sign;
             }
             else
@@ -161,14 +160,21 @@ public class Calculator {
     }
 
     private void resolve ( ) {
-        if ( !operation[1].isEmpty ( ) ) {
-            number[1] = calculate(number[1], operation[1], number[2]);
-            number[2] = operation[1] = "";
-        }
-        if ( !operation[0].isEmpty ( ) ) {
-            number[0] = calculate ( number[0], operation[0], number[1] );
-            number[1] = operation[0] = "";
-        }
+        if ( !operation[1].isEmpty ( ) && !number[2].isEmpty() )
+            number[1] = integerVerification ( calculate ( 1 ) );
+        if ( !operation[0].isEmpty ( ) && !number[1].isEmpty ( ) )
+            number[0] = integerVerification ( calculate ( 0 ) );
+    }
+
+    private boolean changeOperationSign ( int position ) {
+        int length = operation[position].length ( );
+        if ( operation[position].contains ( MINUSSIGN ) )
+            operation[position] = operation[position].substring ( 0, length - 1 ) + PLUSSIGN;
+        else if ( operation[position].contains ( PLUSSIGN ) )
+            operation[position] = operation[position].substring ( 0, length - 1 ) + MINUSSIGN;
+        else
+            return false;
+        return true;
     }
 
     public String add ( String sign ) {
@@ -201,15 +207,21 @@ public class Calculator {
                 resolve ( );
             if ( sign.equals ( POWERSIGN ) )
                 addOperation ( "^" );
+            else if ( sign.equals ( EXPSIGN ) )
+                addOperation ( ",e+" );
             else
                 addOperation ( sign );
         }
         else if ( SINGULARSIGN.contains ( sign ) ) {
             if ( !number[2].isEmpty ( ) )
                 number[2] = operate ( number[2], sign );
-            else if ( !number[1].isEmpty ( ) && operation[1].isEmpty ( ) )
+            else if ( operation[1].contains ( PLUSSIGN ) || operation[1].contains ( MINUSSIGN ) && sign.equals ( CHANGESIGN ) )
+                changeOperationSign ( 1 );
+            else if ( !number[1].isEmpty ( ) )
                 number[1] = operate ( number[1], sign );
-            else if ( !number[0].isEmpty ( ) && operation[0].isEmpty ( ) )
+            else if ( operation[0].contains ( PLUSSIGN ) || operation[0].contains ( MINUSSIGN ) && sign.equals ( CHANGESIGN ) )
+                changeOperationSign ( 0 );
+            else if ( !number[0].isEmpty ( ) )
                 number[0] = operate ( number[0], sign );
         }
         else if ( sign.equals ( ERASELEFTSIGN ) ) {
@@ -224,22 +236,10 @@ public class Calculator {
             else if ( !number[0].isEmpty ( ) )
                 number[0] = number[0].substring ( 0, number[0].length ( ) - 1 );
         }
-        else if ( sign.equals ( EQUALSIGN ) ) {
-            if ( number[2].isEmpty ( ) && !operation[1].isEmpty ( ) )
-                return number[0] + operation[0] + number[1] + operation[1] + number[2];
-            else if ( number[1].isEmpty ( ) && !operation[0].isEmpty ( ) )
-                return number[0] + operation[0] + number[1] + operation[1] + number[2];
-            if ( !operation[1].isEmpty ( ) )
-                number[1] = calculate ( number[1], operation[1], number[2] );
-            if ( !operation[0].isEmpty ( ) )
-                number[0] = calculate ( number[0], operation[0], number[1] );
-            number[1] = number[2] = "";
-            operation[0] = operation[1] = "";
-        }
+        else if ( sign.equals ( EQUALSIGN ) )
+            resolve ( );
         beautifyChangeSign ( 1, 0 );
         beautifyChangeSign ( 2, 1 );
-        for ( int i = 0; i < 3; i++ )
-            number[i] = integerVerification ( number[i] );
         return number[0] + operation[0] + number[1] + operation[1] + number[2];
     }
 
