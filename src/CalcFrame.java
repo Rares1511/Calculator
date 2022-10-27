@@ -7,12 +7,10 @@ class MyButton {
 
     JButton button;
     int mark;
-    static int numberOfButtons = 0;
 
     MyButton ( JButton button, int mark ) {
         this.button = button;
         this.mark = mark;
-        numberOfButtons++;
     }
 
 }
@@ -20,21 +18,25 @@ class MyButton {
 public class CalcFrame extends JFrame implements ActionListener, ComponentListener, KeyListener {
 
     public static JFrame frame;
+    public static Dimension frameDimension;
     public final static Rectangle frameSize = new Rectangle ( 0, 0, 350, 650 );
     public static JTextField textField;
     static final int numberOfLines = 7;
     static final int numberofColums = 5;
     static MyButton[] myButtons = new MyButton[numberofColums * numberOfLines];
+    static MyButton[][] myHiddenButtons = new MyButton[2][numberofColums * numberOfLines];
+    static int hiddenStage = 0;
+    static String CHANGEFUNCSIGN = "2ⁿᵈ";
     static Calculator calculator = new Calculator ( );
 
     CalcFrame ( ) { }
 
-    private MyButton getButton ( String id, CalcFrame calcFrame ) {
+    private MyButton getButton ( String id, CalcFrame calcFrame, int mark ) {
 
         JButton button = new JButton ( id );
         button.addActionListener ( calcFrame );
         button.setVerticalAlignment ( JButton.CENTER );
-        return new MyButton ( button, MyButton.numberOfButtons );
+        return new MyButton ( button, mark );
 
     }
 
@@ -79,7 +81,7 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
 
         textField = new JTextField ( );
 
-        String[] buttonSigns = { "2ⁿᵈ", "π", "e", "CE", "←",
+        String[] buttonSigns = { "2ⁿᵈ", "π", "e", "C", "←",
                                  "x²", "¹/ₓ", "|x|", "exp", "mod",
                                  "√", "(", ")", "n!", "÷",
                                  "xʸ", "7", "8", "9", "×",
@@ -87,10 +89,19 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
                                  "log", "1", "2", "3", "+",
                                  "ln", "±", "0", ".", "="};
 
-        for ( int i = 0; i < buttonSigns.length; i++ )
-            myButtons[i] = calcFrame.getButton ( buttonSigns[i], calcFrame );
+        String[][] hiddenButtonSigns = { { "CE" }, { "x³", "³√x", "ʸ√x", "2ˣ", "logᵧx", "eˣ" } };
+        int[][] hiddenButtonCodes = { { 3 }, { 5, 10, 15, 20, 25, 30 } };
 
-        calcFrame.componentResized ( null );
+        for ( int i = 0; i < hiddenButtonSigns.length; i++ )
+            for ( int j = 0; j < hiddenButtonSigns[i].length; j++ ) {
+                myHiddenButtons[i][j] = calcFrame.getButton(hiddenButtonSigns[i][j], calcFrame, hiddenButtonCodes[i][j]);
+                System.out.println ( i + " " + j + ": " + myHiddenButtons[i][j].button + " " + myHiddenButtons[i][j].mark );
+            }
+
+        for ( int i = 0; i < buttonSigns.length; i++ )
+            myButtons[i] = calcFrame.getButton ( buttonSigns[i], calcFrame, i );
+
+        System.out.println ( myButtons[0].button );
 
         try { UIManager.setLookAndFeel ( UIManager.getSystemLookAndFeelClassName ( ) ); }
         catch ( Exception e ) { e.printStackTrace ( ); }
@@ -103,8 +114,7 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
         textField.setAlignmentX ( JTextField.LEFT_ALIGNMENT );
         textField.setAlignmentY ( JTextField.BOTTOM_ALIGNMENT );
 
-        for ( int i = 0; i < MyButton.numberOfButtons; i++ )
-            frame.add ( myButtons[i].button );
+        for ( MyButton myButton : myButtons ) frame.add ( myButton.button );
 
         frame.add ( textField );
         frame.setLayout ( null );
@@ -116,16 +126,27 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
 
     }
 
-    @Override
+    @Override @Deprecated
     public void actionPerformed ( ActionEvent e ) {
         String textFieldText = calculator.add ( e.getActionCommand ( ) );
         textField.setFont ( getTextFieldFont ( textField, textFieldText ) );
         textField.setText ( textFieldText );
+        if ( e.getActionCommand ( ).equals ( Calculator.ERASELASTSIGN ) )
+            hiddenStage = 0;
+        else if ( e.getActionCommand ( ).equals ( CHANGEFUNCSIGN ) )
+            hiddenStage = 1;
+        else if ( !e.getActionCommand ( ).equals ( Calculator.ERASEALLSIGN ) && myButtons[3].button.getText ( ).equals ( Calculator.ERASEALLSIGN ) )
+            hiddenStage = 0;
+        else
+            hiddenStage = 2;
+        if ( hiddenStage != 2 )
+            frame.hide ( );
     }
 
     @Override
     public void componentResized ( ComponentEvent e ) {
         System.out.println ( "It has been resized" );
+        frameDimension = frame.getSize ( );
         Dimension actualSize = frame.getContentPane().getSize();
 
         int frameWidth = ( int ) actualSize.getWidth ( );
@@ -157,37 +178,46 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
             }
         }
 
-        for ( int i = 0; i < MyButton.numberOfButtons; i++ ) {
-            myButtons[i].button.setBounds ( bounds[myButtons[i].mark] );
-            myButtons[i].button.setFont ( buttonFont );
+        for ( MyButton myButton : myButtons ) {
+            myButton.button.setBounds ( bounds[myButton.mark] );
+            myButton.button.setFont ( buttonFont );
         }
+        for ( MyButton[] myHiddenButton : myHiddenButtons )
+            for ( int j = 0; myHiddenButton[j] != null; j++ ) {
+                myHiddenButton[j].button.setBounds(bounds[myHiddenButton[j].mark]);
+                myHiddenButton[j].button.setFont(buttonFont);
+            }
         textField.setBounds ( textFieldSize );
     }
 
     @Override
-    public void componentMoved(ComponentEvent e) {
-        System.out.println ( "It has been moved" );
-    }
+    public void componentMoved(ComponentEvent e) { System.out.println ( "It has been moved" ); }
 
     @Override
     public void componentShown(ComponentEvent e) {
         System.out.println ( "It has been shown" );
+        frame.setSize ( frameDimension );
     }
 
-    @Override
-    public void componentHidden(ComponentEvent e) {
+    @Override @Deprecated
+    public void componentHidden ( ComponentEvent e ) {
         System.out.println ( "It has been hidden" );
+        for ( int i = 0; myHiddenButtons[hiddenStage][i] != null; i++ ) {
+            MyButton transferButton = myHiddenButtons[hiddenStage][i];
+            frame.remove ( myButtons[transferButton.mark].button );
+            myHiddenButtons[hiddenStage][i] = myButtons[transferButton.mark];
+            myButtons[transferButton.mark] = transferButton;
+            frame.add ( myButtons[transferButton.mark].button );
+        }
+        frame.show ( );
     }
 
     @Override
-    public void keyTyped(KeyEvent e) {
-        System.out.println ( "It has been typed n00b" );
-    }
+    public void keyTyped(KeyEvent e) { System.out.println ( "It has been typed n00b" ); }
 
     @Override
-    public void keyPressed(KeyEvent e) {
+    public void keyPressed ( KeyEvent e ) {
         System.out.println ( "Bench pressed xD :)" );
-        System.out.println ( e.getKeyChar ( ) );
         String text;
         if ( e.getKeyChar ( ) == '/' )
             text = calculator.add ( Calculator.DIVSIGN );
@@ -212,7 +242,5 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
     }
 
     @Override
-    public void keyReleased(KeyEvent e) {
-        System.out.println ( "Released the Kraken" );
-    }
+    public void keyReleased(KeyEvent e) { System.out.println ( "Released the Kraken" ); }
 }

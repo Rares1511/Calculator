@@ -4,7 +4,8 @@ public class Calculator {
     final static String SPECIALSIGN = "πe.";
     final static String PISIGN = "π";
     final static String ESIGN = "e";
-    final static String SIMPLESIGN = "+-×÷xʸmodexp";
+    final static String SIMPLESIGN = "+-×÷xʸmodexpʸ√xlogᵧx";
+    final static String PRIOSIGN = "×÷^modyroot,e+,e-log base";
     final static String EXPSIGN = "exp";
     final static String MODULOSIGN = "mod";
     final static String PLUSSIGN = "+";
@@ -12,7 +13,13 @@ public class Calculator {
     final static String MULSIGN = "×";
     final static String DIVSIGN = "÷";
     final static String POWERSIGN = "xʸ";
-    final static String SINGULARSIGN = "¹/ₓx²√±%CE|x|logln10ˣn!";
+    final static String SINGULARSIGN = "¹/ₓx²√±%|x|logln10ˣn!x³³√x2ˣeˣ";
+    final static String LOGYSIGN = "logᵧx";
+    final static String POWESIGN = "eˣ";
+    final static String POW2SIGN = "2ˣ";
+    final static String ROOTSIGN = "ʸ√x";
+    final static String CUBICROOTSIGN = "³√x";
+    final static String CUBICSIGN = "x³";
     final static String FACTORIALSIGN = "n!";
     final static String POW10SIGN = "10ˣ";
     final static String LOGSIGN = "log";
@@ -22,56 +29,66 @@ public class Calculator {
     final static String INVSIGN = "¹/ₓ";
     final static String SQUARESIGN = "x²";
     final static String PERCSIGN = "%";
-    final static String ROOTSIGN = "√";
+    final static String SQUAREDROOTSIGN = "√";
     final static String ERASELASTSIGN = "CE";
     final static String DECIMALSIGN = ".";
     final static String EQUALSIGN = "=";
     final static String ERASELEFTSIGN = "←";
     final static String ERASEALLSIGN = "C";
 
+    final static int INTVERIFICATIONPOW = 13;
     final static double error = 1e-14;
 
     String[] number = new String[3];
     String[] operation = new String[2];
 
-    private static int factorial ( double number ) {
-        if ( ( int ) number - number > error )
-            return 0;
+    private static double factorial ( double number ) {
+        if ( Math.abs ( ( int ) number - number ) > error )
+            return number;
         int fact = 1;
         for ( int i = 1; i <= number; i++ )
             fact *= i;
         return fact;
     }
 
-    private static String operate ( String number, String operation ) {
+    private String operate ( String number, String operation ) {
         if ( number.charAt ( number.length ( ) - 1 ) == '.' && !operation.equals ( CHANGESIGN ) )
             number = number.substring ( 0, number.length ( ) - 1 );
+        double num = Double.parseDouble ( number );
         switch ( operation ) {
             case INVSIGN:
-                return Double.toString ( 1 / Double.parseDouble ( number ) );
+                return Double.toString ( 1 / num );
             case SQUARESIGN:
-                return Double.toString ( Double.parseDouble ( number ) * Double.parseDouble ( number ) );
-            case ROOTSIGN:
-                return Double.toString ( Math.sqrt ( Double.parseDouble ( number ) ) );
+                return Double.toString ( num * num );
+            case SQUAREDROOTSIGN:
+                return Double.toString ( Math.sqrt ( num ) );
             case CHANGESIGN:
                 if ( number.contains ( "-" ) )
                     return number.substring ( 1 );
                 else
                     return "-" + number;
             case PERCSIGN:
-                return Double.toString ( Double.parseDouble ( number ) / 100 );
+                return Double.toString ( num / 100 );
             case ERASELASTSIGN:
                 return "";
             case ABSSIGN:
-                return Double.toString ( Math.abs ( Double.parseDouble ( number ) ) );
+                return Double.toString ( Math.abs ( num ) );
             case LOGSIGN:
-                return Double.toString ( Math.log10 ( Double.parseDouble ( number ) ) );
+                return Double.toString ( Math.log10 ( num ) );
             case LNSIGN:
-                return Double.toString ( Math.log ( Double.parseDouble ( number ) ) );
+                return Double.toString ( Math.log ( num ) );
             case POW10SIGN:
-                return Double.toString ( Math.pow ( 10, Double.parseDouble ( number ) ) );
+                return Double.toString ( Math.pow ( 10, num ) );
             case FACTORIALSIGN:
-                return Integer.toString ( factorial ( Double.parseDouble ( number ) ) );
+                return Double.toString ( factorial ( num ) );
+            case CUBICSIGN:
+                return Double.toString ( num * num * num );
+            case CUBICROOTSIGN:
+                return Double.toString ( Math.pow ( num, 1.0 / 3 ) );
+            case POW2SIGN:
+                return Double.toString ( Math.pow ( 2, num ) );
+            case POWESIGN:
+                return Double.toString ( Math.pow ( Math.E, num ) );
         }
         return number;
     }
@@ -90,6 +107,8 @@ public class Calculator {
             case MODULOSIGN -> Double.toString ( number1 % number2 );
             case ",e+" -> Double.toString ( number1 * Math.pow ( 10, number2 ) );
             case ",e-" -> Double.toString ( number1 / Math.pow ( 10, number2 ) );
+            case "yroot" -> Double.toString ( Math.pow ( number1, 1 / number2 ) );
+            case " log base " -> Double.toString ( Math.log ( number1 ) / Math.log ( number2 ) );
             default -> "";
         };
     }
@@ -108,12 +127,11 @@ public class Calculator {
         if ( number.isEmpty ( ) || number.endsWith ( "." ) )
             return  number;
         double num = Double.parseDouble ( number );
+        num *= Math.pow ( 10, INTVERIFICATIONPOW );
+        if ( Math.abs ( Math.round ( num )  - num ) < 1 )
+            num = Math.round ( num ) / Math.pow ( 10, INTVERIFICATIONPOW );
         if ( Math.abs ( ( int ) num - num ) < error )
             return Integer.toString ( ( int ) num );
-        int ceva = 14;
-        num *= Math.pow ( 10, ceva );
-        if ( Math.abs ( Math.round ( num )  - num ) < 1 )
-            return Double.toString ( Math.round ( num ) / Math.pow ( 10, ceva ) );
         return number;
     }
 
@@ -134,7 +152,7 @@ public class Calculator {
     }
 
     private String verifyIntegrity ( String number ) {
-        if ( number.isEmpty ( ) ) return number;
+        if ( number.isEmpty ( ) || number.endsWith ( "." ) ) return number;
         double num = Double.parseDouble ( number );
         if ( num == Double.NEGATIVE_INFINITY || num == Double.POSITIVE_INFINITY )
             return "";
@@ -202,27 +220,42 @@ public class Calculator {
             else
                 number[0] = specialValue ( number[0], sign );
         }
-        else if ( SIMPLESIGN.contains ( sign ) ) {
-            if ( !number[2].isEmpty ( ) )
-                resolve ( );
-            if ( sign.equals ( POWERSIGN ) )
-                addOperation ( "^" );
-            else if ( sign.equals ( EXPSIGN ) )
-                addOperation ( ",e+" );
-            else
-                addOperation ( sign );
-        }
         else if ( SINGULARSIGN.contains ( sign ) ) {
             if ( !number[2].isEmpty ( ) )
-                number[2] = operate ( number[2], sign );
+                number[2] = integerVerification ( operate ( number[2], sign ) );
             else if ( operation[1].contains ( PLUSSIGN ) || operation[1].contains ( MINUSSIGN ) && sign.equals ( CHANGESIGN ) )
                 changeOperationSign ( 1 );
             else if ( !number[1].isEmpty ( ) )
-                number[1] = operate ( number[1], sign );
+                number[1] = integerVerification ( operate ( number[1], sign ) );
             else if ( operation[0].contains ( PLUSSIGN ) || operation[0].contains ( MINUSSIGN ) && sign.equals ( CHANGESIGN ) )
                 changeOperationSign ( 0 );
             else if ( !number[0].isEmpty ( ) )
-                number[0] = operate ( number[0], sign );
+                number[0] = integerVerification ( operate ( number[0], sign ) );
+        }
+        else if ( SIMPLESIGN.contains ( sign ) ) {
+            if ( !number[2].isEmpty ( ) )
+                resolve ( );
+            else if ( !number[1].isEmpty ( ) && PRIOSIGN.contains ( operation[0] ) )
+                resolve ( );
+            switch ( sign ) {
+                case POWERSIGN -> addOperation ( "^" );
+                case EXPSIGN -> addOperation ( ",e+" );
+                case ROOTSIGN -> addOperation ( "yroot" );
+                case LOGYSIGN -> addOperation ( " log base " );
+                default -> addOperation ( sign );
+            }
+        }
+        else if ( sign.equals ( ERASELASTSIGN ) ) {
+            if ( !number[2].isEmpty ( ) )
+                number[2] = "";
+            else if ( !operation[1].isEmpty ( ) )
+                operation[1] = "";
+            else if ( !number[1].isEmpty ( ) )
+                number[1] = "";
+            else if ( !operation[0].isEmpty ( ) )
+                operation[0] = "";
+            else
+                number[0] = "";
         }
         else if ( sign.equals ( ERASELEFTSIGN ) ) {
             if ( !number[2].isEmpty ( ) )
