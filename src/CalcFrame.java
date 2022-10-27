@@ -1,9 +1,8 @@
+import com.sun.source.doctree.AttributeTree;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
+import java.awt.event.*;
 import javax.swing.JButton;
 
 class MyButton {
@@ -20,7 +19,7 @@ class MyButton {
 
 }
 
-public class CalcFrame extends JFrame implements ActionListener, ComponentListener {
+public class CalcFrame extends JFrame implements ActionListener, ComponentListener, KeyListener {
 
     public static JFrame frame;
     public final static Rectangle frameSize = new Rectangle ( 0, 0, 350, 650 );
@@ -38,6 +37,35 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
         button.addActionListener ( calcFrame );
         button.setVerticalAlignment ( JButton.CENTER );
         return new MyButton ( button, MyButton.numberOfButtons );
+
+    }
+
+    private Font getTextFieldFont ( JTextField textField, String textFieldText ) {
+        Font textFieldFont = textField.getFont ( );
+        int size = textFieldFont.getSize ( );
+        double pixelSize = size * 6.75 / 12;
+        if ( pixelSize * textFieldText.length ( ) > textField.getWidth ( ) ) {
+            while (pixelSize * textFieldText.length() > textField.getWidth()) {
+                size--;
+                pixelSize = size * 6.75 / 12;
+            }
+        }
+        else {
+            if ( textFieldText.length ( ) > 0 ) {
+                while (pixelSize * textFieldText.length() < textField.getWidth()) {
+                    size++;
+                    pixelSize = size * 6.75 / 12;
+                }
+                size--;
+            }
+        }
+        if ( pixelSize > ( textField.getHeight ( ) / 2.0 ) ) {
+            while ( pixelSize > ( textField.getHeight () / 2.0 ) ) {
+                size--;
+                pixelSize = size * 6.75 / 12;
+            }
+        }
+        return new Font ( "Calibri", Font.PLAIN, size );
 
     }
 
@@ -72,6 +100,7 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
         Font textFieldFont = new Font ( "Calibri", Font.PLAIN, 30 );
         textField.setFont ( textFieldFont );
         textField.setEditable ( false );
+        textField.addKeyListener ( calcFrame );
         textField.setBackground ( Color.LIGHT_GRAY );
         textField.setAlignmentX ( JTextField.LEFT_ALIGNMENT );
         textField.setAlignmentY ( JTextField.BOTTOM_ALIGNMENT );
@@ -92,32 +121,7 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
     @Override
     public void actionPerformed ( ActionEvent e ) {
         String textFieldText = calculator.add ( e.getActionCommand ( ) );
-        Font textFieldFont = textField.getFont ( );
-        int size = textFieldFont.getSize ( );
-        double pixelSize = size * 6.75 / 12;
-        if ( pixelSize * textFieldText.length ( ) > textField.getWidth ( ) ) {
-            while (pixelSize * textFieldText.length() > textField.getWidth()) {
-                size--;
-                pixelSize = size * 6.75 / 12;
-            }
-        }
-        else {
-            if ( textFieldText.length ( ) > 0 ) {
-                while (pixelSize * textFieldText.length() < textField.getWidth()) {
-                    size++;
-                    pixelSize = size * 6.75 / 12;
-                }
-                size--;
-            }
-        }
-        if ( pixelSize > ( textField.getHeight ( ) / 2.0 ) ) {
-            while ( pixelSize > ( textField.getHeight () / 2.0 ) ) {
-                size--;
-                pixelSize = size * 6.75 / 12;
-            }
-        }
-        textFieldFont = new Font ( "Calibri", Font.PLAIN, size );
-        textField.setFont ( textFieldFont );
+        textField.setFont ( getTextFieldFont ( textField, textFieldText ) );
         textField.setText ( textFieldText );
     }
 
@@ -175,5 +179,39 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
     @Override
     public void componentHidden(ComponentEvent e) {
         System.out.println ( "It has been hidden" );
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+        System.out.println ( "It has been typed n00b" );
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        System.out.println ( "Bench pressed xD :)" );
+        String text;
+        if ( e.getKeyChar ( ) == '/' )
+            text = calculator.add ( Calculator.DIVSIGN );
+        else if ( e.getKeyChar ( ) == '*' )
+            text = calculator.add ( Calculator.MULSIGN );
+        else if ( e.getKeyCode ( ) == KeyEvent.VK_ENTER )
+            text = calculator.add ( Calculator.EQUALSIGN );
+        else if ( e.getKeyCode ( ) == KeyEvent.VK_BACK_SPACE )
+            text = calculator.add ( Calculator.ERASELEFTSIGN );
+        else if ( e.getKeyCode ( ) == KeyEvent.VK_DELETE )
+            text = calculator.add ( "CE" );
+        else if ( e.getKeyChar ( ) == '!' )
+            text = calculator.add ( Calculator.FACTORIALSIGN );
+        else if ( e.getKeyChar ( ) == '^' )
+            text = calculator.add ( Calculator.POWERSIGN );
+        else
+            text = calculator.add ( Character.toString ( e.getKeyChar ( ) ) );
+        textField.setFont ( getTextFieldFont ( textField, text ) );
+        textField.setText ( text );
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        System.out.println ( "Released the Kraken" );
     }
 }

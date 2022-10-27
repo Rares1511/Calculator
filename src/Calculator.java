@@ -4,12 +4,15 @@ public class Calculator {
     final static String SPECIALSIGN = "πe.";
     final static String PISIGN = "π";
     final static String ESIGN = "e";
-    final static String SIMPLESIGN = "+-×÷";
+    final static String SIMPLESIGN = "+-×÷xʸmod";
+    final static String MODULOSIGN = "mod";
     final static String PLUSSIGN = "+";
     final static String MINUSSIGN = "-";
     final static String MULSIGN = "×";
     final static String DIVSIGN = "÷";
-    final static String SINGULARSIGN = "¹/ₓx²√±%CE|x|logln10ˣ";
+    final static String POWERSIGN = "xʸ";
+    final static String SINGULARSIGN = "¹/ₓx²√±%CE|x|logln10ˣ!";
+    final static String FACTORIALSIGN = "!";
     final static String POW10SIGN = "10ˣ";
     final static String LOGSIGN = "log";
     final static String LNSIGN = "ln";
@@ -29,6 +32,15 @@ public class Calculator {
 
     String[] number = new String[3];
     String[] operation = new String[2];
+
+    private static int factorial ( double number ) {
+        if ( ( int ) number - number > error )
+            return 0;
+        int fact = 1;
+        for ( int i = 1; i <= number; i++ )
+            fact *= i;
+        return fact;
+    }
 
     private static String operate ( String number, String operation ) {
         if ( number.charAt ( number.length ( ) - 1 ) == '.' && !operation.equals ( CHANGESIGN ) )
@@ -57,16 +69,22 @@ public class Calculator {
                 return Double.toString ( Math.log ( Double.parseDouble ( number ) ) );
             case POW10SIGN:
                 return Double.toString ( Math.pow ( 10, Double.parseDouble ( number ) ) );
+            case FACTORIALSIGN:
+                return Double.toString ( factorial ( Double.parseDouble ( number ) ) );
         }
         return number;
     }
 
     private String calculate ( String num1, String op, String num2 ) {
+        double number1 = Double.parseDouble ( num1 );
+        double number2 = Double.parseDouble ( num2 );
         return switch (op) {
-            case PLUSSIGN -> Double.toString(Double.parseDouble(num1) + Double.parseDouble(num2));
-            case MINUSSIGN -> Double.toString(Double.parseDouble(num1) - Double.parseDouble(num2));
-            case DIVSIGN -> Double.toString(Double.parseDouble(num1) / Double.parseDouble(num2));
-            case MULSIGN -> Double.toString(Double.parseDouble(num1) * Double.parseDouble(num2));
+            case PLUSSIGN -> Double.toString ( number1 + number2 );
+            case MINUSSIGN -> Double.toString ( number1 - number2 );
+            case DIVSIGN -> Double.toString ( number1 / number2 );
+            case MULSIGN -> Double.toString ( number1 * number2 );
+            case "^" -> Double.toString ( Math.pow ( number1, number2 ) );
+            case MODULOSIGN -> Double.toString ( number1 % number2 );
             default -> "";
         };
     }
@@ -87,17 +105,17 @@ public class Calculator {
     }
 
     private String integerVerification ( String number ) {
-        System.out.println ( number );
-        if ( number.isEmpty ( ) || ( !number.contains ( ".0" ) && number.contains ( "." ) ) )
+        if ( number.isEmpty ( ) )
             return  number;
-        System.out.println ( "entered integer verification" );
+        if ( number.endsWith ( "." ) )
+            return number;
         double num = Double.parseDouble ( number );
         if ( Math.abs ( ( int ) num - num ) < error )
             return Integer.toString ( ( int ) num );
-        if ( Math.abs ( ( int ) num + 1 - num ) < error ) {
-            System.out.println ( "entered ( int ) + 1" );
-            return Integer.toString((int) num + 1);
-        }
+        int ceva = 14;
+        num *= Math.pow ( 10, ceva );
+        if ( Math.abs ( Math.round ( num )  - num ) < 1 )
+            return Double.toString ( Math.round ( num ) / Math.pow ( 10, ceva ) );
         return number;
     }
 
@@ -127,6 +145,32 @@ public class Calculator {
         return number;
     }
 
+    private void addOperation ( String sign ) {
+        if ( number[1].isEmpty ( ) && !number[0].isEmpty ( ) )
+            operation[0] = sign;
+        else if ( number[2].isEmpty ( ) && !number[1].isEmpty ( ) ) {
+            if ( sign.equals ( PLUSSIGN ) || sign.equals ( MINUSSIGN )
+                    || operation[0].equals ( DIVSIGN ) || operation[0].equals ( MULSIGN ) ) {
+                number[0] = calculate ( number[0], operation[0], number[1] );
+                number[1] = "";
+                operation[0] = sign;
+            }
+            else
+                operation[1] = sign;
+        }
+    }
+
+    private void resolve ( ) {
+        if ( !operation[1].isEmpty ( ) ) {
+            number[1] = calculate(number[1], operation[1], number[2]);
+            number[2] = operation[1] = "";
+        }
+        if ( !operation[0].isEmpty ( ) ) {
+            number[0] = calculate ( number[0], operation[0], number[1] );
+            number[1] = operation[0] = "";
+        }
+    }
+
     public String add ( String sign ) {
 
         for ( int i = 0; i < 3; i++ )
@@ -153,25 +197,12 @@ public class Calculator {
                 number[0] = specialValue ( number[0], sign );
         }
         else if ( SIMPLESIGN.contains ( sign ) ) {
-            if ( !number[2].isEmpty ( ) ) {
-                number[1] = calculate ( number[1], operation[1], number[2] );
-                number[0] = calculate ( number[0], operation[0], number[1] );
-                number[1] = number[2] = "";
-                operation[1] = "";
-                operation[0] = sign;
-            }
-            else if ( number[1].isEmpty ( ) && !number[0].isEmpty ( ) )
-                operation[0] = sign;
-            else if ( !number[1].isEmpty ( ) ) {
-                if ( sign.equals ( PLUSSIGN ) || sign.equals ( MINUSSIGN )
-                || operation[0].equals ( DIVSIGN ) || operation[0].equals ( MULSIGN ) ) {
-                    number[0] = calculate ( number[0], operation[0], number[1] );
-                    number[1] = "";
-                    operation[0] = sign;
-                }
-                else
-                    operation[1] = sign;
-            }
+            if ( !number[2].isEmpty ( ) )
+                resolve ( );
+            if ( sign.equals ( POWERSIGN ) )
+                addOperation ( "^" );
+            else
+                addOperation ( sign );
         }
         else if ( SINGULARSIGN.contains ( sign ) ) {
             if ( !number[2].isEmpty ( ) )
