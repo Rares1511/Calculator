@@ -19,7 +19,6 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
 
     public static JFrame frame;
     public static Dimension frameDimension;
-    public final static Rectangle frameSize = new Rectangle ( 0, 0, 350, 650 );
     public static JTextField textField;
     static final int numberOfLines = 7;
     static final int numberofColums = 5;
@@ -77,13 +76,12 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
         frame = new JFrame ( "Calculator" );
         frame.setLocation ( 600, 150 );
         frame.setMinimumSize ( new Dimension ( 500, 650 ) );
-        frame.setSize ( frameSize.width, frameSize.height );
 
         textField = new JTextField ( );
 
         String[] buttonSigns = { "2ⁿᵈ", "π", "e", "C", "←",
                                  "x²", "¹/ₓ", "|x|", "exp", "mod",
-                                 "√", "(", ")", "n!", "÷",
+                                 "√x", "(", ")", "n!", "÷",
                                  "xʸ", "7", "8", "9", "×",
                                  "10ˣ", "4", "5", "6", "-",
                                  "log", "1", "2", "3", "+",
@@ -93,15 +91,11 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
         int[][] hiddenButtonCodes = { { 3 }, { 5, 10, 15, 20, 25, 30 } };
 
         for ( int i = 0; i < hiddenButtonSigns.length; i++ )
-            for ( int j = 0; j < hiddenButtonSigns[i].length; j++ ) {
+            for ( int j = 0; j < hiddenButtonSigns[i].length; j++ )
                 myHiddenButtons[i][j] = calcFrame.getButton(hiddenButtonSigns[i][j], calcFrame, hiddenButtonCodes[i][j]);
-                System.out.println ( i + " " + j + ": " + myHiddenButtons[i][j].button + " " + myHiddenButtons[i][j].mark );
-            }
 
         for ( int i = 0; i < buttonSigns.length; i++ )
             myButtons[i] = calcFrame.getButton ( buttonSigns[i], calcFrame, i );
-
-        System.out.println ( myButtons[0].button );
 
         try { UIManager.setLookAndFeel ( UIManager.getSystemLookAndFeelClassName ( ) ); }
         catch ( Exception e ) { e.printStackTrace ( ); }
@@ -111,8 +105,6 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
         textField.setEditable ( false );
         textField.addKeyListener ( calcFrame );
         textField.setBackground ( Color.LIGHT_GRAY );
-        textField.setAlignmentX ( JTextField.LEFT_ALIGNMENT );
-        textField.setAlignmentY ( JTextField.BOTTOM_ALIGNMENT );
 
         for ( MyButton myButton : myButtons ) frame.add ( myButton.button );
 
@@ -139,13 +131,12 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
             hiddenStage = 0;
         else
             hiddenStage = 2;
-        if ( hiddenStage != 2 )
+        if ( hiddenStage < myHiddenButtons.length )
             frame.hide ( );
     }
 
     @Override
     public void componentResized ( ComponentEvent e ) {
-        System.out.println ( "It has been resized" );
         frameDimension = frame.getSize ( );
         Dimension actualSize = frame.getContentPane().getSize();
 
@@ -191,17 +182,13 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
     }
 
     @Override
-    public void componentMoved(ComponentEvent e) { System.out.println ( "It has been moved" ); }
+    public void componentMoved(ComponentEvent e) { }
 
     @Override
-    public void componentShown(ComponentEvent e) {
-        System.out.println ( "It has been shown" );
-        frame.setSize ( frameDimension );
-    }
+    public void componentShown(ComponentEvent e) { frame.setSize ( frameDimension ); }
 
     @Override @Deprecated
     public void componentHidden ( ComponentEvent e ) {
-        System.out.println ( "It has been hidden" );
         for ( int i = 0; myHiddenButtons[hiddenStage][i] != null; i++ ) {
             MyButton transferButton = myHiddenButtons[hiddenStage][i];
             frame.remove ( myButtons[transferButton.mark].button );
@@ -213,11 +200,10 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
     }
 
     @Override
-    public void keyTyped(KeyEvent e) { System.out.println ( "It has been typed n00b" ); }
+    public void keyTyped(KeyEvent e) { }
 
     @Override
     public void keyPressed ( KeyEvent e ) {
-        System.out.println ( "Bench pressed xD :)" );
         String text;
         if ( e.getKeyChar ( ) == '/' )
             text = calculator.add ( Calculator.DIVSIGN );
@@ -242,5 +228,5 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
     }
 
     @Override
-    public void keyReleased(KeyEvent e) { System.out.println ( "Released the Kraken" ); }
+    public void keyReleased(KeyEvent e) { }
 }

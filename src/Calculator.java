@@ -13,7 +13,7 @@ public class Calculator {
     final static String MULSIGN = "×";
     final static String DIVSIGN = "÷";
     final static String POWERSIGN = "xʸ";
-    final static String SINGULARSIGN = "¹/ₓx²√±%|x|logln10ˣn!x³³√x2ˣeˣ";
+    final static String SINGULARSIGN = "¹/ₓx²√±%|x|logln10ˣn!x³³√xx2ˣeˣ";
     final static String LOGYSIGN = "logᵧx";
     final static String POWESIGN = "eˣ";
     final static String POW2SIGN = "2ˣ";
@@ -29,7 +29,7 @@ public class Calculator {
     final static String INVSIGN = "¹/ₓ";
     final static String SQUARESIGN = "x²";
     final static String PERCSIGN = "%";
-    final static String SQUAREDROOTSIGN = "√";
+    final static String SQUAREDROOTSIGN = "√x";
     final static String ERASELASTSIGN = "CE";
     final static String DECIMALSIGN = ".";
     final static String EQUALSIGN = "=";
