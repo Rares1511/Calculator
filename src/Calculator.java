@@ -64,16 +64,39 @@ public class Calculator {
         double num = Double.parseDouble ( number[numberPoz] );
         if ( num < 0 ) {
             if ( operation[operationPoz].equals ( MINUSSIGN ) )
-                this.operation[operationPoz] = PLUSSIGN;
+                operation[operationPoz] = PLUSSIGN;
             else if ( operation[operationPoz].equals ( PLUSSIGN ) )
-                this.operation[operationPoz] = MINUSSIGN;
+                operation[operationPoz] = MINUSSIGN;
             else
                 return;
-            this.number[numberPoz] = number[numberPoz].substring ( 1 );
+            number[numberPoz] = number[numberPoz].substring ( 1 );
         }
     }
 
+    private String integerVerification ( String number ) {
+        if ( number.isEmpty ( ) || number.contains ( "." ) )
+            return  number;
+        double num = Double.parseDouble ( number );
+        if ( ( int ) num == num )
+            return Integer.toString ( ( int ) num );
+        return number;
+    }
+
+    private String verifyIntegrity ( String number ) {
+        if ( number.isEmpty ( ) ) return number;
+        double num = Double.parseDouble ( number );
+        if ( num == Double.NEGATIVE_INFINITY || num == Double.POSITIVE_INFINITY )
+            return "";
+        if ( Double.isNaN ( num ) )
+            return "";
+        return number;
+    }
+
     public String add ( String sign ) {
+
+        for ( int i = 0; i < 3; i++ )
+            number[i] = verifyIntegrity ( number[i] );
+
         System.out.println ( sign );
         if ( sign.equals ( ERASEALLSIGN ) ) {
             number[0] = number[1] = number[2] = "";
@@ -95,9 +118,9 @@ public class Calculator {
                 operation[1] = "";
                 operation[0] = sign;
             }
-            else if ( operation[0].isEmpty ( ) && !number[0].isEmpty ( ) )
+            else if ( number[1].isEmpty ( ) && !number[0].isEmpty ( ) )
                 operation[0] = sign;
-            else if ( operation[1].isEmpty ( ) && !number[1].isEmpty ( ) ) {
+            else if ( number[2].isEmpty ( ) && !number[1].isEmpty ( ) ) {
                 if ( sign.equals ( PLUSSIGN ) || sign.equals ( MINUSSIGN )
                 || operation[0].equals ( DIVSIGN ) || operation[0].equals ( MULSIGN ) ) {
                     number[0] = calculate ( number[0], operation[0], number[1] );
@@ -142,6 +165,9 @@ public class Calculator {
         }
         beautifyChangeSign ( 1, 0 );
         beautifyChangeSign ( 2, 1 );
+        for ( int i = 0; i < 3; i++ ) {
+            number[i] = integerVerification ( number[i] );
+        }
         return number[0] + operation[0] + number[1] + operation[1] + number[2];
     }
 

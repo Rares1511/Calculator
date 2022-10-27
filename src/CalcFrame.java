@@ -47,7 +47,8 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
         CalcFrame calcFrame = new CalcFrame ( );
 
         frame = new JFrame ( "Calculator" );
-        frame.setBounds ( frameSize );
+        frame.setSize ( frameSize.width, frameSize.height );
+        frame.setLocation ( 600, 150 );
         frame.setMinimumSize ( frame.getSize ( ) );
 
         textField = new JTextField ( );
@@ -55,15 +56,16 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
         String[] buttonSigns = { "%", "CE", "C", "←", "¹/ₓ", "x²", "√", "÷", "7", "8", "9", "×", "6", "5", "4", "-",
                 "1", "2", "3", "+", "±", "0", ".", "=" };
 
-        for ( int i = 0; i < buttonSigns.length; i++ ) {
+        for ( int i = 0; i < buttonSigns.length; i++ )
             myButtons[i] = calcFrame.getButton ( buttonSigns[i], calcFrame );
-        }
 
         calcFrame.componentResized ( null );
 
         try { UIManager.setLookAndFeel ( UIManager.getSystemLookAndFeelClassName ( ) ); }
         catch ( Exception e ) { e.printStackTrace ( ); }
 
+        Font textFieldFont = new Font ( "Calibri", Font.PLAIN, 30 );
+        textField.setFont ( textFieldFont );
         textField.setEditable ( false );
         textField.setBackground ( Color.LIGHT_GRAY );
 
@@ -82,7 +84,34 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
 
     @Override
     public void actionPerformed ( ActionEvent e ) {
-        textField.setText ( calculator.add ( e.getActionCommand ( ) ) );
+        String textFieldText = calculator.add ( e.getActionCommand ( ) );
+        Font textFieldFont = textField.getFont ( );
+        int size = textFieldFont.getSize ( );
+        double pixelSize = size * 6.75 / 12;
+        if ( pixelSize * textFieldText.length ( ) > textField.getWidth ( ) ) {
+            while (pixelSize * textFieldText.length() > textField.getWidth()) {
+                size--;
+                pixelSize = size * 6.75 / 12;
+            }
+        }
+        else {
+            if ( textFieldText.length ( ) > 0 ) {
+                while (pixelSize * textFieldText.length() < textField.getWidth()) {
+                    size++;
+                    pixelSize = size * 6.75 / 12;
+                }
+                size--;
+            }
+        }
+        if ( pixelSize > ( textField.getHeight ( ) / 2.0 ) ) {
+            while ( pixelSize > ( textField.getHeight () / 2.0 ) ) {
+                size--;
+                pixelSize = size * 6.75 / 12;
+            }
+        }
+        textFieldFont = new Font ( "Calibri", Font.PLAIN, size );
+        textField.setFont ( textFieldFont );
+        textField.setText ( textFieldText );
     }
 
     @Override
@@ -98,13 +127,13 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
         int finalX = frameWidth - 2 * spaceBetweenX;
         int finalY = frameHeight / 5;
 
-        int fontSize = ( int ) Point.distance ( 0, 0, frameHeight, frameWidth ) / 21;
+        int fontSize = ( int ) Point.distance ( 0, 0, frameHeight, frameWidth * 0.75 ) / 21;
         Font buttonFont = new Font ( "Calibri", Font.PLAIN, fontSize );
 
         Rectangle textFieldSize = new Rectangle ( spaceBetweenX, spaceBetweenY, finalX, finalY );
         Rectangle[] bounds = new Rectangle[30];
 
-        int buttonHeight = ( frameHeight - textFieldSize.height - spaceBetweenY * ( numberOfLines + 2 ) ) / numberOfLines;
+        int buttonHeight = ( int ) ( frameHeight - textFieldSize.height - spaceBetweenY * ( numberOfLines + 1.75 ) ) / numberOfLines;
         int buttonWidth = ( frameWidth - spaceBetweenX * ( numberofColums + 3 ) ) / numberofColums;
 
         for ( int i = 0; i < numberOfLines; i++ ) {
@@ -124,7 +153,6 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
             myButtons[i].button.setFont ( buttonFont );
         }
         textField.setBounds ( textFieldSize );
-        textField.setFont ( buttonFont );
     }
 
     @Override
