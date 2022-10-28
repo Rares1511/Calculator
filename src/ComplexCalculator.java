@@ -1,28 +1,69 @@
 public class ComplexCalculator {
 
-    String[] expressions;
-    Calculator[] calculators;
-    int numberOfCalculators;
+    final static String ERASEALLSIGN = "C";
+
+    Calculator[] calculators = new Calculator[60];
+    String[] expressions = new String[30];
+    int numberOfParantheses = 0;
+    int numberOfCalculators = 0;
 
     ComplexCalculator ( ) {
-        expressions = new String[30];
-        calculators = new Calculator[30];
-        numberOfCalculators = 0;
+        for ( int i = 0; i < 30; i++ ) {
+            calculators[i] = new Calculator();
+            expressions[i] = "";
+        }
     }
 
     public String add ( String sign ) {
-        if ( sign.equals ( "(" ) )
-            numberOfCalculators++;
-        else if ( sign.equals ( ")" ) ) {
-            expressions[numberOfCalculators] = calculators[numberOfCalculators].add ( Calculator.EQUALSIGN );
-            numberOfCalculators--;
+        int totalNumber = numberOfCalculators + numberOfParantheses;
+        switch ( sign ) {
+            case "(" -> {
+                if ( numberOfCalculators > 0 && !calculators[numberOfCalculators - 1].lastIsOperation ( ) )
+                    calculators[numberOfCalculators - 1].add ( Calculator.MULSIGN );
+                expressions[totalNumber] = "(";
+                numberOfParantheses++;
+            }
+            case ")" -> {
+                if ( numberOfParantheses == 0 )
+                    break;
+                String result = calculators[numberOfCalculators - 1].add ( Calculator.EQUALSIGN );
+                calculators[numberOfCalculators - 1].add ( Calculator.ERASEALLSIGN );
+                System.out.println ( result );
+                numberOfCalculators--;
+                numberOfParantheses--;
+                totalNumber = numberOfCalculators + numberOfParantheses;
+                expressions[totalNumber - 1] = Integer.toString ( numberOfCalculators - 1 );
+                for (int i = 0; i < result.length(); i++) {
+                    calculators[numberOfCalculators - 1].add ( result.substring ( i, i + 1 ) );
+                }
+
+            }
+            case ERASEALLSIGN -> {
+                for ( int i = 0; i < totalNumber; i++ ) {
+                    expressions[i] = "";
+                    calculators[i].add ( Calculator.ERASEALLSIGN );
+                }
+                numberOfCalculators = 0;
+                numberOfParantheses = 0;
+            }
+            default -> {
+                if ( totalNumber == 0 || expressions[totalNumber - 1].equals ( "(" ) ) {
+                    numberOfCalculators++;
+                    expressions[totalNumber] = Integer.toString ( numberOfCalculators - 1 );
+                }
+                calculators[numberOfCalculators - 1].add(sign);
+            }
         }
-        else
-            expressions[numberOfCalculators] = calculators[numberOfCalculators].add ( sign );
-        String expression = expressions[0];
-        for ( int i = 1; i < numberOfCalculators; i++ )
-            expression = "(" + expressions[i];
-        return expression;
+        totalNumber = numberOfCalculators + numberOfParantheses;
+        StringBuilder expression = new StringBuilder();
+        for ( int i = 0; i < totalNumber; i++ )
+            if ( expressions[i].equals ( "(" ) )
+                expression.append ( "(" );
+            else {
+                int position = Integer.parseInt ( expressions[i] );
+                expression.append ( calculators[position].getExpression ( ) );
+            }
+        return expression.toString ( );
     }
 
 }

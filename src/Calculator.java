@@ -6,6 +6,7 @@ public class Calculator {
     final static String ESIGN = "e";
     final static String SIMPLESIGN = "+-×÷xʸmodexpʸ√xlogᵧx";
     final static String PRIOSIGN = "×÷^modyroot,e+,e-log base";
+    final static String UNPRIOSIGN = "+-";
     final static String EXPSIGN = "exp";
     final static String MODULOSIGN = "mod";
     final static String PLUSSIGN = "+";
@@ -169,7 +170,7 @@ public class Calculator {
         else if ( number[2].isEmpty ( ) && !number[1].isEmpty ( ) ) {
             if ( sign.equals ( PLUSSIGN ) || sign.equals ( MINUSSIGN )
                     || operation[0].equals ( DIVSIGN ) || operation[0].equals ( MULSIGN ) ) {
-                number[0] = calculate ( 0 );
+                number[0] = integerVerification ( calculate ( 0 ) );
                 operation[0] = sign;
             }
             else
@@ -193,6 +194,16 @@ public class Calculator {
         else
             return false;
         return true;
+    }
+
+    public boolean lastIsOperation ( ) {
+        if ( !number[2].isEmpty ( ) )
+            return false;
+        if ( !operation[1].isEmpty ( ) )
+            return true;
+        if ( !number[1].isEmpty ( ) )
+            return false;
+        return !operation[0].isEmpty();
     }
 
     public String add ( String sign ) {
@@ -235,7 +246,7 @@ public class Calculator {
         else if ( SIMPLESIGN.contains ( sign ) ) {
             if ( !number[2].isEmpty ( ) )
                 resolve ( );
-            else if ( !number[1].isEmpty ( ) && PRIOSIGN.contains ( operation[0] ) )
+            else if ( !number[1].isEmpty ( ) && PRIOSIGN.contains ( operation[0] ) && !UNPRIOSIGN.contains ( operation[0] ) )
                 resolve ( );
             switch ( sign ) {
                 case POWERSIGN -> addOperation ( "^" );
@@ -273,6 +284,10 @@ public class Calculator {
             resolve ( );
         beautifyChangeSign ( 1, 0 );
         beautifyChangeSign ( 2, 1 );
+        return number[0] + operation[0] + number[1] + operation[1] + number[2];
+    }
+
+    public String getExpression ( ) {
         return number[0] + operation[0] + number[1] + operation[1] + number[2];
     }
 

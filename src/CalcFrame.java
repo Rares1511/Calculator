@@ -26,7 +26,8 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
     static MyButton[][] myHiddenButtons = new MyButton[2][numberofColums * numberOfLines];
     static int hiddenStage = 0;
     static String CHANGEFUNCSIGN = "2ⁿᵈ";
-    static Calculator calculator = new Calculator ( );
+    static ComplexCalculator calculator = new ComplexCalculator ( );
+    //static Calculator calculator = new Calculator ();
 
     CalcFrame ( ) { }
 
