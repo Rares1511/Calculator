@@ -153,7 +153,7 @@ public class Calculator {
     }
 
     private String verifyIntegrity ( String number ) {
-        if ( number.isEmpty ( ) || number.endsWith ( "." ) ) return number;
+        if ( number.isEmpty ( ) || number.endsWith ( "." ) || number.equals ( MINUSSIGN ) ) return number;
         double num = Double.parseDouble ( number );
         if ( num == Double.NEGATIVE_INFINITY || num == Double.POSITIVE_INFINITY )
             return "";
