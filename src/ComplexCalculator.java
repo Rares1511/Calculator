@@ -2,6 +2,7 @@ import java.util.Objects;
 
 public class ComplexCalculator {
 
+    final static String AVOIDSIGN = "C=←()";
     final static String ERASEALLSIGN = "C";
     final static String EQUALSIGN = "=";
     final static String ERASELEFTSIGN = "←";
@@ -31,34 +32,40 @@ public class ComplexCalculator {
                     break;
                 String initExpr = calculators[numberOfCalculators - 1].getExpression ( );
                 String result = calculators[numberOfCalculators - 1].add ( Calculator.EQUALSIGN );
+                numberOfParantheses--;
+                System.out.println ( numberOfCalculators );
+                totalNumber--;
+                expressions[totalNumber - 1] = Integer.toString ( numberOfCalculators - 1 );
                 if ( ! Objects.equals ( result, initExpr ) ) {
                     calculators[numberOfCalculators - 1].add(Calculator.ERASEALLSIGN);
-                    System.out.println(result);
-                    numberOfCalculators--;
-                    numberOfParantheses--;
-                    totalNumber = numberOfCalculators + numberOfParantheses;
-                    expressions[totalNumber - 1] = Integer.toString(numberOfCalculators - 1);
+                    if ( numberOfCalculators > 1 )
+                        numberOfCalculators--;
                     for (int i = 0; i < result.length(); i++) {
                         calculators[numberOfCalculators - 1].add(result.substring(i, i + 1));
                     }
                 }
+                System.out.println ( expressions[0] + " " + expressions[1] );
             }
             case EQUALSIGN -> {
+                System.out.println ( numberOfCalculators );
+                if ( numberOfCalculators == 0 ) break;
                 String initExpr = calculators[numberOfCalculators - 1].getExpression ( );
-                String result = calculators[numberOfCalculators - 1].add ( Calculator.EQUALSIGN );
+                String result = "";
                 if ( ! Objects.equals ( result, initExpr ) ) {
-                    while ( numberOfCalculators > 1 ) {
+                    do {
                         result = calculators[numberOfCalculators - 1].add ( Calculator.EQUALSIGN );
-                        calculators[numberOfCalculators - 1].add(Calculator.ERASEALLSIGN);
-                        System.out.println(result);
+                        System.out.println ( result );
+                        if ( numberOfCalculators == 1 )
+                            break;
+                        calculators[numberOfCalculators - 1].add ( Calculator.ERASEALLSIGN );
                         numberOfCalculators--;
                         totalNumber = numberOfCalculators + numberOfParantheses;
                         expressions[totalNumber - 1] = Integer.toString(numberOfCalculators - 1);
-                        for (int i = 0; i < result.length(); i++) {
+                        for ( int i = 0; i < result.length ( ); i++ )
                             calculators[numberOfCalculators - 1].add(result.substring(i, i + 1));
-                        }
-                    }
+                    } while ( numberOfCalculators > 0 );
                     numberOfParantheses = 0;
+                    expressions[0] = Integer.toString ( 0 );
                 }
             }
             case ERASELEFTSIGN -> {
@@ -81,9 +88,9 @@ public class ComplexCalculator {
                 numberOfParantheses = 0;
             }
             default -> {
-                if ( totalNumber == 0 || expressions[totalNumber - 1].equals ( "(" ) ) {
-                    numberOfCalculators++;
-                    expressions[totalNumber] = Integer.toString ( numberOfCalculators - 1 );
+                System.out.println("entered here with " + sign);
+                if (totalNumber == 0 || expressions[totalNumber - 1].equals("(")) {
+                    numberOfCalculators++;expressions[totalNumber] = Integer.toString(numberOfCalculators - 1);
                 }
                 calculators[numberOfCalculators - 1].add(sign);
             }

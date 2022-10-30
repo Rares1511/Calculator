@@ -1,144 +1,60 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.JButton;
 
-class MyButton {
+public class CalcFrame extends JFrame implements KeyListener, ComponentListener, ActionListener {
 
-    JButton button;
-    int mark;
-
-    MyButton ( JButton button, int mark ) {
-        this.button = button;
-        this.mark = mark;
-    }
-
-}
-
-public class CalcFrame extends JFrame implements ActionListener, ComponentListener, KeyListener {
-
-    public static JFrame frame;
-    public static Dimension frameDimension;
-    public static JTextField textField;
-    static final int numberOfLines = 7;
-    static final int numberofColums = 5;
-    static MyButton[] myButtons = new MyButton[numberofColums * numberOfLines];
-    static MyButton[][] myHiddenButtons = new MyButton[2][numberofColums * numberOfLines];
-    static int hiddenStage = 0;
-    static String CHANGEFUNCSIGN = "2ⁿᵈ";
-    static ComplexCalculator calculator = new ComplexCalculator ( );
-    //static Calculator calculator = new Calculator ();
+    public static JFrame frame = new JFrame ( );
+    public static JLabel calcLabel;
+    public static JButton optionsButton;
+    private static final ScientificFrame scFrame = new ScientificFrame ( frame );
 
     CalcFrame ( ) { }
 
-    private MyButton getButton ( String id, CalcFrame calcFrame, int mark ) {
-
-        JButton button = new JButton ( id );
-        button.addActionListener ( calcFrame );
-        button.setVerticalAlignment ( JButton.CENTER );
-        return new MyButton ( button, mark );
-
-    }
-
-    private Font getTextFieldFont ( JTextField textField, String textFieldText ) {
-        Font textFieldFont = textField.getFont ( );
-        int size = textFieldFont.getSize ( );
-        double pixelSize = size * 6.75 / 12;
-        if ( pixelSize * textFieldText.length ( ) > textField.getWidth ( ) ) {
-            while (pixelSize * textFieldText.length() > textField.getWidth()) {
-                size--;
-                pixelSize = size * 6.75 / 12;
-            }
-        }
-        else {
-            if ( textFieldText.length ( ) > 0 ) {
-                while (pixelSize * textFieldText.length() < textField.getWidth()) {
-                    size++;
-                    pixelSize = size * 6.75 / 12;
-                }
-                size--;
-            }
-        }
-        if ( pixelSize > ( textField.getHeight ( ) / 2.0 ) ) {
-            while ( pixelSize > ( textField.getHeight () / 2.0 ) ) {
-                size--;
-                pixelSize = size * 6.75 / 12;
-            }
-        }
-        return new Font ( "Calibri", Font.PLAIN, size );
-
-    }
 
     @Deprecated
     public static void main ( String[] args ) {
 
         CalcFrame calcFrame = new CalcFrame ( );
 
-        frame = new JFrame ( "Calculator" );
-        frame.setLocation ( 600, 150 );
-        frame.setMinimumSize ( new Dimension ( 500, 650 ) );
+        scFrame.setActionListener ( calcFrame );
+        scFrame.setKeyListener ( calcFrame );
 
-        textField = new JTextField ( );
+        frame.setMinimumSize ( new Dimension( 500, 650 ) );
+        frame.setLocation ( 450, 200 );
+        optionsButton = new JButton ( "☰" );
+        calcLabel = new JLabel ( );
 
-        String[] buttonSigns = { "2ⁿᵈ", "π", "e", "C", "←",
-                                 "x²", "¹/ₓ", "|x|", "exp", "mod",
-                                 "√x", "(", ")", "n!", "÷",
-                                 "xʸ", "7", "8", "9", "×",
-                                 "10ˣ", "4", "5", "6", "-",
-                                 "log", "1", "2", "3", "+",
-                                 "ln", "±", "0", ".", "="};
+        optionsButton.setBorder ( BorderFactory.createEmptyBorder ( ) );
+        optionsButton.setVerticalAlignment ( JButton.TOP );
+        optionsButton.addActionListener ( calcFrame );
 
-        String[][] hiddenButtonSigns = { { "CE" }, { "x³", "³√x", "ʸ√x", "2ˣ", "logᵧx", "eˣ" } };
-        int[][] hiddenButtonCodes = { { 3 }, { 5, 10, 15, 20, 25, 30 } };
-
-        for ( int i = 0; i < hiddenButtonSigns.length; i++ )
-            for ( int j = 0; j < hiddenButtonSigns[i].length; j++ )
-                myHiddenButtons[i][j] = calcFrame.getButton(hiddenButtonSigns[i][j], calcFrame, hiddenButtonCodes[i][j]);
-
-        for ( int i = 0; i < buttonSigns.length; i++ )
-            myButtons[i] = calcFrame.getButton ( buttonSigns[i], calcFrame, i );
+        calcLabel.setText ( "Scientific" );
+        calcLabel.setVerticalAlignment ( JLabel.TOP );
 
         try { UIManager.setLookAndFeel ( UIManager.getSystemLookAndFeelClassName ( ) ); }
         catch ( Exception e ) { e.printStackTrace ( ); }
 
-        Font textFieldFont = new Font ( "Calibri", Font.PLAIN, 30 );
-        textField.setFont ( textFieldFont );
-        textField.setEditable ( false );
-        textField.addKeyListener ( calcFrame );
-        textField.setBackground ( Color.LIGHT_GRAY );
+        frame.add ( optionsButton );
+        frame.add ( calcLabel );
 
-        for ( MyButton myButton : myButtons ) frame.add ( myButton.button );
-
-        frame.add ( textField );
+        frame.addComponentListener ( calcFrame );
         frame.setLayout ( null );
         frame.setVisible ( true );
         frame.show ( );
-
-        frame.addComponentListener ( calcFrame );
         frame.setDefaultCloseOperation ( JFrame.EXIT_ON_CLOSE );
+
+        frame.setName ( scFrame.Name );
 
     }
 
-    @Override @Deprecated
+    @Override
     public void actionPerformed ( ActionEvent e ) {
-        String textFieldText = calculator.add ( e.getActionCommand ( ) );
-        textField.setFont ( getTextFieldFont ( textField, textFieldText ) );
-        textField.setText ( textFieldText );
-        if ( e.getActionCommand ( ).equals ( Calculator.ERASELASTSIGN ) )
-            hiddenStage = 0;
-        else if ( e.getActionCommand ( ).equals ( CHANGEFUNCSIGN ) )
-            hiddenStage = 1;
-        else if ( !e.getActionCommand ( ).equals ( Calculator.ERASEALLSIGN ) && myButtons[3].button.getText ( ).equals ( Calculator.ERASEALLSIGN ) )
-            hiddenStage = 0;
-        else
-            hiddenStage = 2;
-        if ( hiddenStage < myHiddenButtons.length )
-            frame.hide ( );
+        System.out.println ( e.getActionCommand ( ) );
     }
 
     @Override
     public void componentResized ( ComponentEvent e ) {
-        frameDimension = frame.getSize ( );
         Dimension actualSize = frame.getContentPane().getSize();
 
         int frameWidth = ( int ) actualSize.getWidth ( );
@@ -147,87 +63,49 @@ public class CalcFrame extends JFrame implements ActionListener, ComponentListen
         int spaceBetweenX = frameWidth / 100;
         int spaceBetweenY = frameHeight / 100;
         int finalX = frameWidth - 2 * spaceBetweenX;
-        int finalY = frameHeight / 5;
+        int finalY = frameHeight / 10;
 
-        int fontSize = ( int ) Point.distance ( 0, 0, frameHeight * 0.50, frameWidth * 0.75 ) / 20;
-        Font buttonFont = new Font ( "Calibri", Font.PLAIN, fontSize );
+        int fontSize = ( int ) Point.distance ( 0, 0, frameHeight * 0.75, frameWidth * 0.45 ) / 30;
+        Font buttonFont = new Font ( "", Font.PLAIN, fontSize );
+        Font labelFont = new Font ( "Calibri", Font.PLAIN, ( int ) ( fontSize * 1.5 ) );
 
-        Rectangle textFieldSize = new Rectangle ( spaceBetweenX, spaceBetweenY, finalX, finalY );
-        Rectangle[] bounds = new Rectangle[numberOfLines * numberofColums];
+        optionsButton.setFont ( buttonFont );
+        optionsButton.setBounds ( spaceBetweenX, spaceBetweenY, finalX / 5, ( int ) ( finalY / 1.5 )  );
 
-        int buttonHeight = ( int ) ( frameHeight - textFieldSize.height - spaceBetweenY * ( numberOfLines + 1.75 ) ) / numberOfLines;
-        int buttonWidth = ( frameWidth - spaceBetweenX * ( numberofColums + 3 ) ) / numberofColums;
+        calcLabel.setBounds ( spaceBetweenX + finalX / 5, spaceBetweenY, finalX, ( int ) ( finalY / 1.5 ) );
+        calcLabel.setFont ( labelFont );
 
-        for ( int i = 0; i < numberOfLines; i++ ) {
-            for ( int j = 0; j < numberofColums; j++ ) {
-                int position = i * numberofColums + j;
-                int startX = j * buttonWidth + ( j + 1 ) * spaceBetweenX;
-                int startY = i * buttonHeight + ( int ) textFieldSize.getMaxY ( ) + ( i + 1 ) * spaceBetweenY;
-                int width = buttonWidth;
-                if ( j == numberofColums - 1 )
-                    width = actualSize.width - ( int ) textFieldSize.getMinX ( ) - startX;
-                bounds[position] = new Rectangle ( startX, startY, width, buttonHeight );
-            }
-        }
-
-        for ( MyButton myButton : myButtons ) {
-            myButton.button.setBounds ( bounds[myButton.mark] );
-            myButton.button.setFont ( buttonFont );
-        }
-        for ( MyButton[] myHiddenButton : myHiddenButtons )
-            for ( int j = 0; myHiddenButton[j] != null; j++ ) {
-                myHiddenButton[j].button.setBounds(bounds[myHiddenButton[j].mark]);
-                myHiddenButton[j].button.setFont(buttonFont);
-            }
-        textField.setBounds ( textFieldSize );
+        scFrame.setStartHeight ( calcLabel.getHeight ( ) + spaceBetweenY );
+        scFrame.draw ( );
     }
 
     @Override
-    public void componentMoved(ComponentEvent e) { }
+    public void componentMoved(ComponentEvent e) {
 
-    @Override
-    public void componentShown(ComponentEvent e) { frame.setSize ( frameDimension ); }
-
-    @Override @Deprecated
-    public void componentHidden ( ComponentEvent e ) {
-        for ( int i = 0; myHiddenButtons[hiddenStage][i] != null; i++ ) {
-            MyButton transferButton = myHiddenButtons[hiddenStage][i];
-            frame.remove ( myButtons[transferButton.mark].button );
-            myHiddenButtons[hiddenStage][i] = myButtons[transferButton.mark];
-            myButtons[transferButton.mark] = transferButton;
-            frame.add ( myButtons[transferButton.mark].button );
-        }
-        frame.show ( );
     }
 
     @Override
-    public void keyTyped(KeyEvent e) { }
+    public void componentShown(ComponentEvent e) {
 
-    @Override
-    public void keyPressed ( KeyEvent e ) {
-        String text;
-        if ( e.getKeyChar ( ) == '/' )
-            text = calculator.add ( Calculator.DIVSIGN );
-        else if ( e.getKeyChar ( ) == '*' )
-            text = calculator.add ( Calculator.MULSIGN );
-        else if ( e.getKeyCode ( ) == KeyEvent.VK_ENTER )
-            text = calculator.add ( Calculator.EQUALSIGN );
-        else if ( e.getKeyCode ( ) == KeyEvent.VK_BACK_SPACE )
-            text = calculator.add ( Calculator.ERASELEFTSIGN );
-        else if ( e.getKeyCode ( ) == KeyEvent.VK_DELETE )
-            text = calculator.add ( "CE" );
-        else if ( e.getKeyChar ( ) == '!' )
-            text = calculator.add ( Calculator.FACTORIALSIGN );
-        else if ( e.getKeyChar ( ) == '^' )
-            text = calculator.add ( Calculator.POWERSIGN );
-        else if ( e.getKeyCode ( ) == KeyEvent.VK_P )
-            text = calculator.add ( Calculator.PISIGN );
-        else
-            text = calculator.add ( Character.toString ( e.getKeyChar ( ) ) );
-        textField.setFont ( getTextFieldFont ( textField, text ) );
-        textField.setText ( text );
     }
 
     @Override
-    public void keyReleased(KeyEvent e) { }
+    public void componentHidden(ComponentEvent e) {
+
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+
+    }
 }
