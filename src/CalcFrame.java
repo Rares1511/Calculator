@@ -60,6 +60,7 @@ public class CalcFrame implements KeyListener, ComponentListener, ActionListener
 
     @Override @Deprecated
     public void actionPerformed ( ActionEvent e ) {
+        System.out.println ( e.getActionCommand ( ) );
         String command = e.getActionCommand ( );
         if ( command.equals ( "☰" ) )
             popupMenu.show ( frame, optionsButton.getX ( ), optionsButton.getY ( ) );
