@@ -2,7 +2,6 @@ import java.util.Objects;
 
 public class ComplexCalculator {
 
-    final static String AVOIDSIGN = "C=←()";
     final static String ERASEALLSIGN = "C";
     final static String EQUALSIGN = "=";
     final static String ERASELEFTSIGN = "←";
@@ -33,7 +32,6 @@ public class ComplexCalculator {
                 String initExpr = calculators[numberOfCalculators - 1].getExpression ( );
                 String result = calculators[numberOfCalculators - 1].add ( Calculator.EQUALSIGN );
                 numberOfParantheses--;
-                System.out.println ( numberOfCalculators );
                 totalNumber--;
                 expressions[totalNumber - 1] = Integer.toString ( numberOfCalculators - 1 );
                 if ( ! Objects.equals ( result, initExpr ) ) {
@@ -44,17 +42,14 @@ public class ComplexCalculator {
                         calculators[numberOfCalculators - 1].add(result.substring(i, i + 1));
                     }
                 }
-                System.out.println ( expressions[0] + " " + expressions[1] );
             }
             case EQUALSIGN -> {
-                System.out.println ( numberOfCalculators );
                 if ( numberOfCalculators == 0 ) break;
                 String initExpr = calculators[numberOfCalculators - 1].getExpression ( );
                 String result = "";
                 if ( ! Objects.equals ( result, initExpr ) ) {
                     do {
                         result = calculators[numberOfCalculators - 1].add ( Calculator.EQUALSIGN );
-                        System.out.println ( result );
                         if ( numberOfCalculators == 1 )
                             break;
                         calculators[numberOfCalculators - 1].add ( Calculator.ERASEALLSIGN );
@@ -88,7 +83,6 @@ public class ComplexCalculator {
                 numberOfParantheses = 0;
             }
             default -> {
-                System.out.println("entered here with " + sign);
                 if (totalNumber == 0 || expressions[totalNumber - 1].equals("(")) {
                     numberOfCalculators++;expressions[totalNumber] = Integer.toString(numberOfCalculators - 1);
                 }

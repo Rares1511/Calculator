@@ -159,8 +159,6 @@ public class Calculator {
             return "";
         if ( Double.isNaN ( num ) )
             return "";
-        if ( num == 0 )
-            return "";
         return number;
     }
 
@@ -206,6 +204,13 @@ public class Calculator {
         return !operation[0].isEmpty();
     }
 
+    private void addDigit ( String digit, int position ) {
+        if ( number[position].equals ( "0" ) )
+            number[position] = digit;
+        else
+            number[position] += digit;
+    }
+
     public String add ( String sign ) {
 
         for ( int i = 0; i < 3; i++ )
@@ -217,11 +222,11 @@ public class Calculator {
         }
         else if ( DIGIT.contains ( sign ) ) {
             if ( !operation[1].isEmpty ( ) )
-                number[2] += sign;
+                addDigit ( sign, 2 );
             else if ( !operation[0].isEmpty ( ) )
-                number[1] += sign;
+                addDigit ( sign, 1 );
             else
-                number[0] += sign;
+                addDigit ( sign, 0 );
         }
         else if ( SPECIALSIGN.contains ( sign ) ) {
             if ( !operation[1].isEmpty ( ) )

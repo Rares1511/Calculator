@@ -20,7 +20,6 @@ public class ScientificFrame {
     ActionListener actionListener = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.out.println ( e.getActionCommand ( ) );
             String textFieldText = calculator.add ( e.getActionCommand ( ) );
             textField.setFont ( getTextFont ( textField.getFont ( ), textFieldText, textField.getWidth ( ), textField.getHeight ( ) ) );
             textField.setText ( textFieldText );
@@ -71,10 +70,10 @@ public class ScientificFrame {
     public static JTextField textField;
     final int numberOfLines = 7;
     final int numberofColums = 5;
+    private final static double pixelSizeModifier = 6.75 / 12;
     MyButton[] myButtons = new MyButton[numberofColums * numberOfLines];
     static String CHANGEFUNCSIGN = "2ⁿᵈ";
     ComplexCalculator calculator = new ComplexCalculator ( );
-    final static double pixelSizeModifier = 6.75 / 12;
     final String Name = "Scientific";
     public static String[][] hiddenButtonSigns = { { "CE" }, { "x³", "³√x", "ʸ√x", "2ˣ", "logᵧx", "eˣ" } };
     public static int[][] hiddenButtonCodes = { { 3 }, { 5, 10, 15, 20, 25, 30 } };
@@ -113,40 +112,30 @@ public class ScientificFrame {
         draw ( );
     }
 
+    private static Font getTextFont ( Font font, String text, int width, int height ) {
+
+        int size = font.getSize ( );
+        double pixelSize = size * pixelSizeModifier;
+        if ( pixelSize * text.length ( ) > width ) {
+            while ( pixelSize * text.length() > width )
+                pixelSize = ( --size ) * pixelSizeModifier;
+        }
+        else if ( text.length ( ) > 0 ) {
+            while ( pixelSize * text.length() < width )
+                pixelSize = ( ++size ) * pixelSizeModifier;
+            size--;
+        }
+        while ( pixelSize > ( height / 2.0 ) )
+            pixelSize = ( --size ) * pixelSizeModifier;
+        return new Font ( font.getFontName ( ), Font.PLAIN, size );
+    }
+
     private static MyButton getButton(String id, ActionListener actionListener, int mark) {
         JButton button = new JButton ( id );
         button.addActionListener ( actionListener );
         button.setVerticalAlignment ( JButton.CENTER );
         return new MyButton ( button, mark );
 
-    }
-
-    public static Font getTextFont ( Font font, String text, int width, int height ) {
-
-        int size = font.getSize ( );
-        double pixelSize = size * pixelSizeModifier;
-        if ( pixelSize * text.length ( ) > width ) {
-            while ( pixelSize * text.length() > width ) {
-                size--;
-                pixelSize = size * pixelSizeModifier;
-            }
-        }
-        else {
-            if ( text.length ( ) > 0 ) {
-                while ( pixelSize * text.length() < width ) {
-                    size++;
-                    pixelSize = size * pixelSizeModifier;
-                }
-                size--;
-            }
-        }
-        if ( pixelSize > ( height / 2.0 ) ) {
-            while ( pixelSize > ( height / 2.0 ) ) {
-                size--;
-                pixelSize = size * pixelSizeModifier;
-            }
-        }
-        return new Font ( font.getFontName ( ), Font.PLAIN, size );
     }
 
     private void Rewrite ( int hiddenStage ) {
@@ -197,5 +186,11 @@ public class ScientificFrame {
             myButton.button.setFont ( buttonFont );
         }
         textField.setBounds ( textFieldSize );
+    }
+
+    public void remove ( ) {
+        for ( MyButton myButton : myButtons )
+            frame.remove ( myButton.button );
+        frame.remove ( textField );
     }
 }
