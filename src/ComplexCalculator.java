@@ -100,5 +100,4 @@ public class ComplexCalculator {
             }
         return expression.toString ( );
     }
-
 }

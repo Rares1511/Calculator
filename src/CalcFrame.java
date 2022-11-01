@@ -7,13 +7,14 @@ import java.util.Scanner;
 
 public class CalcFrame implements KeyListener, ComponentListener, ActionListener {
 
-    public static JFrame frame = new JFrame ( );
+    public static JFrame frame = new JFrame ( "Calculator" );
     public static JPopupMenu popupMenu = new JPopupMenu ( "☰" );
     public static JLabel calcLabel;
     public static JButton optionsButton;
-    private static final Drawer[] drawers = new Drawer[30];
-    private static String currentCalc = "scientific";
-    private static final String[] menuItemSigns = { "scientific", "standard" };
+    private static final Drawer[] drawers = new Drawer[2];
+    private static String currentCalc;
+    private static int currentCalcCode = 0;
+    private static final String[] menuItemSigns = new String[30];
 
     CalcFrame ( ) { }
 
@@ -25,25 +26,23 @@ public class CalcFrame implements KeyListener, ComponentListener, ActionListener
         File calcConfigFile = new File ( "calculator config.txt" );
         Scanner scanner = new Scanner ( calcConfigFile );
 
-        String name = scanner.nextLine ( );
-        int lines = scanner.nextInt ( );
-        int columns = scanner.nextInt ( );
-        scanner.nextLine();
-        String firstLine = scanner.nextLine ( );
+        int currentDrawer = 0;
+        while ( scanner.hasNextLine ( ) ) {
+            menuItemSigns[currentDrawer] = scanner.nextLine ( );
+            int lines = scanner.nextInt();
+            int columns = scanner.nextInt();
+            scanner.nextLine();
+            String[] buttonSigns = new String[lines * columns];
+            for (int i = 0; i < lines; i++) {
+                String[] line = scanner.nextLine ( ).split ( "," );
+                System.arraycopy ( line, 0, buttonSigns, i * columns, line.length );
+            }
+            drawers[currentDrawer++] = new Drawer ( menuItemSigns[currentDrawer - 1], frame, lines, columns, buttonSigns );
+            if (scanner.hasNextLine ( ) )
+                scanner.nextLine ( );
+        }
 
-        System.out.println ( name );
-        System.out.println ( lines + " " + columns );
-        System.out.println ( firstLine );
-
-        String[] buttonSigns = { "2ⁿᵈ", "π", "e", "C", "←",
-                "x²", "¹/ₓ", "|x|", "exp", "mod",
-                "√x", "(", ")", "n!", "÷",
-                "xʸ", "7", "8", "9", "×",
-                "10ˣ", "4", "5", "6", "-",
-                "log", "1", "2", "3", "+",
-                "ln", "±", "0", ".", "="};
-
-        drawers[0] = new Drawer ( "Scientific", frame, 7, 5, buttonSigns );
+        currentCalc = drawers[0].getName ( );
 
         Font menuItemFont = new Font ( "Calibri", Font.PLAIN, 40 );
         JMenuItem[] items = new JMenuItem[menuItemSigns.length];
@@ -54,8 +53,7 @@ public class CalcFrame implements KeyListener, ComponentListener, ActionListener
             popupMenu.add ( items[i] );
         }
 
-        drawers[0].setActionListener ( calcFrame );
-        drawers[0].setKeyListener ( calcFrame );
+        for ( Drawer drawer : drawers ) { drawer.setActionListener ( calcFrame ); drawer.setKeyListener ( calcFrame ); }
 
         frame.setMinimumSize ( new Dimension( 500, 650 ) );
         frame.setLocation ( 450, 200 );
@@ -66,7 +64,7 @@ public class CalcFrame implements KeyListener, ComponentListener, ActionListener
         optionsButton.setVerticalAlignment ( JButton.TOP );
         optionsButton.addActionListener ( calcFrame );
 
-        calcLabel.setText ( "Scientific" );
+        calcLabel.setText ( currentCalc );
         calcLabel.setVerticalAlignment ( JLabel.TOP );
 
         try { UIManager.setLookAndFeel ( UIManager.getSystemLookAndFeelClassName ( ) ); }
@@ -80,7 +78,6 @@ public class CalcFrame implements KeyListener, ComponentListener, ActionListener
         frame.setVisible ( true );
         frame.show ( );
         frame.setDefaultCloseOperation ( JFrame.EXIT_ON_CLOSE );
-        frame.setName ( drawers[0].getName ( ) );
 
     }
 
@@ -90,11 +87,20 @@ public class CalcFrame implements KeyListener, ComponentListener, ActionListener
         if ( command.equals ( "☰" ) )
             popupMenu.show ( frame, optionsButton.getX ( ), optionsButton.getY ( ) );
         else {
-            for ( String menuItemSign : menuItemSigns )
-                if ( command.equals ( menuItemSign ) && !command.equals ( currentCalc ) ) {
-                    currentCalc = menuItemSign;
+            if ( command.equals ( currentCalc ) )
+                return;
+            for ( int i = 0; i < menuItemSigns.length; i++ ) {
+                if ( command.equals ( menuItemSigns[i] ) ) {
+                    drawers[currentCalcCode].remove ( );
+                    currentCalcCode = i;
+                    currentCalc = drawers[i].getName ( );
+                    drawers[i].add ( );
+                    drawers[i].draw ( );
+                    componentResized ( null );
+                    calcLabel.setText ( currentCalc );
                     frame.hide ( );
                 }
+            }
         }
     }
 
@@ -120,8 +126,8 @@ public class CalcFrame implements KeyListener, ComponentListener, ActionListener
         calcLabel.setBounds ( spaceBetweenX + finalX / 5, spaceBetweenY, finalX, ( int ) ( finalY / 1.5 ) );
         calcLabel.setFont ( labelFont );
 
-        drawers[0].setStartHeight ( calcLabel.getHeight ( ) + spaceBetweenY );
-        drawers[0].draw ( );
+        drawers[currentCalcCode].setStartHeight ( calcLabel.getHeight ( ) + spaceBetweenY );
+        drawers[currentCalcCode].draw ( );
     }
 
     @Override

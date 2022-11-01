@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.security.Key;
 
 class MyButton {
     JButton button;
@@ -27,7 +26,7 @@ public class Drawer {
 
     private ActionListener actionListener = new ActionListener() {
         @Override
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed ( ActionEvent e ) {
             String textFieldText = calculator.add ( e.getActionCommand ( ) );
             textField.setFont ( getTextFont ( textField.getFont ( ), textFieldText, textField.getWidth ( ), textField.getHeight ( ) ) );
             textField.setText ( textFieldText );
@@ -48,7 +47,7 @@ public class Drawer {
         }
 
         @Override
-        public void keyPressed(KeyEvent e) {
+        public void keyPressed ( KeyEvent e ) {
             String text;
             if ( e.getKeyChar ( ) == '/' )
                 text = calculator.add ( Calculator.DIVSIGN );
@@ -77,7 +76,7 @@ public class Drawer {
 
         }
     };
-    private String name;
+    private final String name;
     protected int startHeight;
     protected JFrame frame;
     protected int numberOfLines;
@@ -111,6 +110,7 @@ public class Drawer {
     }
 
     private void Rewrite ( int hiddenStage ) {
+        if ( name.equals ( "Standard" ) ) return;
         if ( hiddenStage >= hiddenButtonCodes.length ) return;
         for ( int i = 0; i < hiddenButtonCodes[hiddenStage].length && hiddenButtonSigns[hiddenStage][i] != null; i++ ) {
             int position = hiddenButtonCodes[hiddenStage][i];
@@ -128,9 +128,7 @@ public class Drawer {
 
     public void setStartHeight ( int startHeight ) { this.startHeight = startHeight; }
 
-    Drawer ( ) { }
-
-    Drawer ( String Name, JFrame frame, int numberOfLines, int numberOfColumns, String[] buttonSigns ) {
+    Drawer ( String name, JFrame frame, int numberOfLines, int numberOfColumns, String[] buttonSigns ) {
         this.name = name;
         this.frame = frame;
         this.numberOfColumns = numberOfColumns;
@@ -154,6 +152,11 @@ public class Drawer {
         frame.add ( textField );
 
         draw ( );
+    }
+
+    public void add ( ) {
+        for ( MyButton myButton : myButtons ) frame.add ( myButton.button );
+        frame.add ( textField );
     }
 
     public void draw ( ) {
@@ -196,9 +199,11 @@ public class Drawer {
         textField.setBounds ( textFieldSize );
     }
 
+    @Deprecated
     public void remove ( ) {
-        frame.hide ( );
         for ( MyButton myButton : myButtons ) frame.remove ( myButton.button );
+        frame.remove ( textField );
+        frame.hide ( );
     }
 
 }
