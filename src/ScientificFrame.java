@@ -3,19 +3,8 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.JButton;
 
-class MyButton {
 
-    JButton button;
-    int mark;
-
-    MyButton ( JButton button, int mark ) {
-        this.button = button;
-        this.mark = mark;
-    }
-
-}
-
-public class ScientificFrame {
+public class ScientificFrame extends Drawer {
 
     ActionListener actionListener = new ActionListener() {
         @Override
@@ -95,16 +84,10 @@ public class ScientificFrame {
         textField.addKeyListener ( keyListener );
         textField.setBackground ( Color.LIGHT_GRAY );
 
-        String[] buttonSigns = { "2ⁿᵈ", "π", "e", "C", "←",
-                "x²", "¹/ₓ", "|x|", "exp", "mod",
-                "√x", "(", ")", "n!", "÷",
-                "xʸ", "7", "8", "9", "×",
-                "10ˣ", "4", "5", "6", "-",
-                "log", "1", "2", "3", "+",
-                "ln", "±", "0", ".", "="};
-
-        for ( int i = 0; i < buttonSigns.length; i++ )
-            myButtons[i] = getButton ( buttonSigns[i], actionListener, i );
+        for ( int i = 0; i < buttonSigns.length; i++ ) {
+            myButtons[i] = MyButton.getButton ( buttonSigns[i], actionListener, i );
+            myButtons[i].button.addActionListener ( actionListener );
+        }
 
         for ( MyButton myButton : myButtons ) frame.add ( myButton.button );
         frame.add ( textField );
@@ -128,14 +111,6 @@ public class ScientificFrame {
         while ( pixelSize > ( height / 2.0 ) )
             pixelSize = ( --size ) * pixelSizeModifier;
         return new Font ( font.getFontName ( ), Font.PLAIN, size );
-    }
-
-    private static MyButton getButton(String id, ActionListener actionListener, int mark) {
-        JButton button = new JButton ( id );
-        button.addActionListener ( actionListener );
-        button.setVerticalAlignment ( JButton.CENTER );
-        return new MyButton ( button, mark );
-
     }
 
     private void Rewrite ( int hiddenStage ) {
